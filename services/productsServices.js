@@ -14,7 +14,12 @@ const getAll = async () => {
     return productById;
   };
 
+  const create = async (name, quantity) => {
+    const p = await productModels.create(name, quantity);
+    return p;
+  };
 module.exports = {
     getAll,
     findById,
+    create,
 };
