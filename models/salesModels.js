@@ -23,23 +23,26 @@ const findById = async (id) => {
     return saleData.map(serialize);
 };
 
-const create = async (productId, quantity) => {
+const create = async (saleProducts) => {
     const vendaQuery = 'INSERT INTO StoreManager.sales (date) VALUES(NOW());';
     const [venda] = await connection.execute(vendaQuery);
     const saleId = venda.insertId;
     
-    const query = 'INSERT INTO StoreManager.sales_products (sale_id, product_id, quantity)';
-    const query2 = 'VALUES (?,?,?)';
-    await connection.execute(query + query2, [saleId, productId, quantity]); 
-    const [res] = await findById(saleId);
+    const itemsSold = await Promise.all(saleProducts.map(async ({ productId, quantity }) => {
+        const query = 'INSERT INTO StoreManager.sales_products (sale_id, product_id, quantity)';
+        const query2 = 'VALUES (?,?,?)';
+
+        await connection.execute(query + query2, [saleId, productId, quantity]); 
+
+        return {
+            productId,
+            quantity,
+        };
+    }));
+
     return {
         id: saleId,
-        itemsSold: [
-            {
-          productId: res.productId,
-          quantity: res.quantity,
-        },
-    ],
+        itemsSold,
     };
 };
 module.exports = {

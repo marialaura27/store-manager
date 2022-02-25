@@ -12,18 +12,28 @@ const findById = async (req, res) => {
 
     if (!sale) return res.status(404).json({ message: 'Sale not found' });
 
-  res.status(200).json(sale);
+    res.status(200).json(sale);
 };
 
+const runValidations = (salesProducts) => salesProducts.map(({ productId, quantity }) => {
+    if (!productId) return [{ message: '"productId" is required' }, 400];
+    if (quantity <= 0) return [{ message: '"quantity" must be greater than or equal to 1' }, 422];
+    if (!quantity) return [{ message: '"quantity" is required' }, 400];
+    return null;
+});
+
 const create = async (req, res) => {
-    const [{ productId, quantity }] = req.body;
-    if (!productId) return res.status(400).json({ message: '"productId" is required' });
-    if (!quantity) return res.status(400).json({ message: '"quantity" is required' });
-    if (quantity <= 0) {
-    return res.status(422).json({ message: '"quantity" must be greater than or equal to 1' });
+    const saleProducts = req.body;
+
+    const compraValida = runValidations(saleProducts);
+    const status = compraValida[0];
+
+    if (status) {
+        return res.status(status[1]).json(status[0]);
     }
-    const vendaCadastrada = await salesServices.create(productId, quantity);
-    res.status(201).json(vendaCadastrada);
+    
+    const results = await salesServices.create(saleProducts);
+    return res.status(201).json(results);
 };
 
 module.exports = {

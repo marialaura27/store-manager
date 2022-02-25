@@ -14,8 +14,8 @@ const getAll = async () => {
     return salesById;
   };
 
-  const create = async (productId, quantity) => {
-    const s = await salesModels.create(productId, quantity);
+  const create = async (saleProducts) => {
+    const s = await salesModels.create(saleProducts);
     return s;
   };
 
