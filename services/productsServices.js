@@ -25,7 +25,7 @@ const getAll = async () => {
   };
 
   const deleteProduct = async (id) => {
-    const res = productModels.deleteProduct(id);
+    const res = await productModels.deleteProduct(id);
     return res;
   };
 

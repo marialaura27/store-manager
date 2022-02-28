@@ -36,8 +36,34 @@ const create = async (req, res) => {
     return res.status(201).json(results);
 };
 
+const deleteSale = async (req, res) => {
+    const { id } = req.params;
+    const sale = await salesServices.findById(id);
+
+    if (!sale) return res.status(404).json({ message: 'Sale not found' });
+    await salesServices.deleteSale(id);
+    res.status(204).json();
+};
+
+const update = async (req, res) => {
+    const { id } = req.params;
+    const infoSale = req.body;
+    console.log(4, infoSale);
+    const compraValida = runValidations(infoSale);
+    const status = compraValida[0];
+
+    if (status) {
+        return res.status(status[1]).json(status[0]);
+    }
+    const { productId, quantity } = infoSale[0];
+    const results = await salesServices.update(id, productId, quantity);
+    return res.status(200).json(results);
+};
+
 module.exports = {
     getAll,
     findById,
     create,
+    deleteSale,
+    update,
 };

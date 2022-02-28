@@ -33,7 +33,6 @@ const create = async (name, quantity) => {
 
 const update = async (id, name, quantity) => {
     const query = 'UPDATE StoreManager.products SET name = ?, quantity = ? WHERE id = ?';
-    console.log(name, quantity);
     await connection.execute(query, [name, quantity, id]);
     return findById(id);
 };

@@ -19,8 +19,20 @@ const getAll = async () => {
     return s;
   };
 
+  const deleteSale = async (id) => {
+    const res = await salesModels.deleteSale(id);
+    return res;
+  };
+
+  const update = async (id, productId, quantity) => {
+    const res = await salesModels.update(id, productId, quantity);
+    return res;
+  };
+
 module.exports = {
     getAll,
     findById,
     create,
+    deleteSale,
+    update,
 };
