@@ -1,27 +1,131 @@
+const sinon = require('sinon');
 const { expect } = require('chai');
 
-const salesModel = {
-  create: () => {}
-};
+const connection = require("../../../models/connection");
+const salesModels = require("../../../models/salesModels");
 
-describe('Insere uma nova venda no BD', () => {
-  const sale = {
-    date: '2021-09-09 00:45:23'
-  }
+describe('salesModels', () => {
 
-  describe('quando é inserido com sucesso', () => {
+  describe('[GET] /sales', async () => {
+    const raw = [{
+      sale_id: 1,
+      product_id: 1,
+      date: 1,
+      quantity: 5,
+    }]
 
-    it('retorna um objeto', async () => {
-      const response = await sales.create(sale);
+    const expected = [{
+      saleId: 1,
+      productId: 1,
+      date: 1, 
+      quantity: 5
+    }]
+    after(() => {
+      connection.execute.restore();
+    })
 
-      expect(response).to.be.a('object')
-    });
+    it('[GET] /sales', async () => {
+      sinon.stub(connection, 'execute').resolves([raw]);
+      const response = await salesModels.getAll();
+      expect(response).to.deep.equal(expected);
+    })
+  })
 
-    it('O objeto possui o id do novo produto inserido', async () => {
-      const response = await salesModel.create(sale);
+  describe('[GET] /sales/:id', () => {
+    const raw = [{
+      product_id: 1,
+      date: 1,
+      quantity: 5,
+      sale_id: 1,
+    }]
 
-      expect(response).to.have.a.property('id')
-    });
+    const expected = [{
+      productId: 1,
+      date: 1,
+      quantity: 5,
+      saleId: 1,
+    }]
+    after(() => {
+      connection.execute.restore();
+    })
 
-  });
-});
+    it('[GET] /sales/:id', async () => {
+      sinon.stub(connection, 'execute').resolves([raw]);
+      const response = await salesModels.findById(1);
+      expect(response).to.deep.equal(expected);
+    })
+  })
+
+  describe('[POST] /sales', () => {
+    const payload = [{
+      productId: 1,
+      quantity: 12
+    }]
+
+    const successResponse = {
+      id: 3,
+      itemsSold: [{
+        productId: 1,
+        quantity: 12
+      }]
+    }
+
+    after(() => {
+      connection.execute.restore()
+    })
+
+    it('[POST] /sales', async () => {
+      sinon.stub(connection, 'execute').resolves([{ insertId: 1 }]);
+      sinon.stub(salesModels, 'create').resolves(successResponse);
+
+      const response = await salesModels.create(payload)
+      expect(response).to.deep.equal(successResponse);
+    })
+  })
+
+  describe('[DELETE] /sales/:id', () => {
+    const payload = {
+      id: 1
+    };
+
+    before(() => {
+      sinon.stub(connection, 'execute').resolves(true);
+    })
+
+    after(() => {
+      connection.execute.restore()
+    })
+
+    it('[DELETE] /sales/:id ✅', async () => {
+      const response = await salesModels.deleteSale(payload.id);
+      expect(response).to.be.true;
+    })
+  })
+
+  describe('[UPDATE] /product/:id', () => {
+    const payload = {
+      productId: 1,
+      quantity: 9,
+    };
+
+    const expectedResponse = {
+      saleId: 1,
+      itemUpdated: [
+        payload
+      ]
+    }
+
+    before(() => {
+      sinon.stub(connection, 'execute').resolves(expectedResponse);
+    })
+
+    after(() => {
+      connection.execute.restore()
+    })
+
+    it('[UPDATE] /sales/:id ✅', async () => {
+      const response = await salesModels.update(1, payload.productId, payload.quantity)
+      expect(response).to.deep.equal(expectedResponse);
+    })
+  })
+})
