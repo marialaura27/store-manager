@@ -31,6 +31,11 @@ const create = async (req, res) => {
     if (status) {
         return res.status(status[1]).json(status[0]);
     }
+
+    const quantidadeValida = await salesServices.findProductById(saleProducts[0]);
+    if (!quantidadeValida) {
+        return res.status(422).json({ message: 'Such amount is not permitted to sell' });
+    }
     
     const results = await salesServices.create(saleProducts);
     return res.status(201).json(results);

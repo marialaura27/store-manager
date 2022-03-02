@@ -29,10 +29,17 @@ const getAll = async () => {
     return res;
   };
 
+  const findProductById = async (saleProducts) => {
+    const { productId, quantity } = saleProducts;
+    const res = await salesModels.findProductById(productId, quantity);
+    return res;
+  };
+
 module.exports = {
     getAll,
     findById,
     create,
     deleteSale,
     update,
+    findProductById,
 };

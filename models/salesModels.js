@@ -67,10 +67,19 @@ const update = async (id, productId, quantity) => {
       };
 };
 
+const findProductById = async (productId, quantity) => {
+    const query = 'SELECT id, name, quantity FROM StoreManager.products WHERE id = ?';
+    const [productData] = await connection.execute(query, [productId]);
+    if (productData[0].quantity < quantity) return null;
+
+    return true;
+};
+
 module.exports = {
     getAll,
     findById,
     create,
     deleteSale,
     update,
+    findProductById,
 };
